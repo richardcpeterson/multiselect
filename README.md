@@ -6,7 +6,8 @@ If you submit patches I'll try be a little more on top of maintaining them.
 
 ## History ##
 
-8/9/2011
+### 8/9/2011 ###
+
 * Merged code from NateEag to fix duplicate items - issues 90 & 91
 * Merged code from chickenchan to fix issue with loosing sort order - issue 22
 * Updated so width doesn't expand past what the target elements width is. Borders were causing this to happen.
