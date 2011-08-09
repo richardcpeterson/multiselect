@@ -12,6 +12,7 @@ If you submit patches I'll try be a little more on top of maintaining them.
 * Merged code from chickenchan to fix issue with loosing sort order - issue 22
 * Updated so width doesn't expand past what the target elements width is. Borders were causing this to happen.
 * Add code to trigger the original select boxes change event whenever the list changes.
+* Added support for specifying width and height. If not specified it will default to using the target element's dimensions which can be inconsistent if the target is a select element and it's not visisble.
 
 ## Original Author's comments ##
 

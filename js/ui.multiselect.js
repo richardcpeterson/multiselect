@@ -36,6 +36,8 @@ $.widget("ui.multiselect", {
 		show: 'slideDown',
 		hide: 'slideUp',
 		dividerLocation: 0.6,
+		width: null,
+		height: null,
 		nodeComparator: function(node1,node2) {
 			var text1 = node1.text(),
 			    text2 = node2.text();
@@ -55,15 +57,24 @@ $.widget("ui.multiselect", {
 		this.availableList = $('<ul class="available connected-list"><li class="ui-helper-hidden-accessible"></li></ul>').bind('selectstart', function(){return false;}).appendTo(this.availableContainer);
 		
 		var that = this;
-
+		
+		var width = this.options.width;
+		if (!width) {
+			width = this.element.width();
+		}
+		var height = this.options.height;
+		if (!height) {
+			height = this.element.height();
+		}
+		
 		// set dimensions
-		this.container.width(this.element.width()-2);
-		this.selectedContainer.width(Math.floor(this.element.width()*this.options.dividerLocation)-1);
-		this.availableContainer.width(Math.floor(this.element.width()*(1-this.options.dividerLocation))-2);
+		this.container.width(width-2);
+		this.selectedContainer.width(Math.floor(width*this.options.dividerLocation)-1);
+		this.availableContainer.width(Math.floor(width*(1-this.options.dividerLocation))-2);
 
 		// fix list height to match <option> depending on their individual header's heights
-		this.selectedList.height(Math.max(this.element.height()-this.selectedActions.height(),1));
-		this.availableList.height(Math.max(this.element.height()-this.availableActions.height(),1));
+		this.selectedList.height(Math.max(height-this.selectedActions.height(),1));
+		this.availableList.height(Math.max(height-this.availableActions.height(),1));
 		
 		if ( !this.options.animated ) {
 			this.options.show = 'show';
