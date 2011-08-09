@@ -85,6 +85,12 @@ $.widget("ui.multiselect", {
 							$(this).data('optionLink').remove().appendTo(that.element);
 					});
 				},
+				beforeStop: function (event, ui) {
+					// This lets us recognize which item was just added to
+					// the list in receive, per the workaround for not being
+					// able to reference the new element.
+					ui.item.addClass('dropped');
+				},
 				receive: function(event, ui) {
 					ui.item.data('optionLink').attr('selected', true);
 					// increment count
@@ -92,8 +98,8 @@ $.widget("ui.multiselect", {
 					that._updateCount();
 					// workaround, because there's no way to reference 
 					// the new element, see http://dev.jqueryui.com/ticket/4303
-					that.selectedList.children('.ui-draggable').each(function() {
-						$(this).removeClass('ui-draggable');
+					that.selectedList.children('.dropped').each(function() {
+						$(this).removeClass('dropped');
 						$(this).data('optionLink', ui.item.data('optionLink'));
 						$(this).data('idx', ui.item.data('idx'));
 						that._applyItemState($(this), true);
@@ -101,7 +107,8 @@ $.widget("ui.multiselect", {
 			
 					// workaround according to http://dev.jqueryui.com/ticket/4088
 					setTimeout(function() { ui.item.remove(); }, 1);
-				}
+				},
+				stop: function (event, ui) { that.element.change(); }
 			});
 		}
 		
@@ -174,7 +181,10 @@ $.widget("ui.multiselect", {
 		return clone;
 	},
 	_setSelected: function(item, selected) {
-		item.data('optionLink').attr('selected', selected);
+		var temp = item.data('optionLink').attr('selected', selected);
+		var parent = temp.parent();
+		temp.detach().appendTo(parent);
+		this.element.trigger('change');
 
 		if (selected) {
 			var selectedItem = this._cloneWithData(item);
@@ -259,6 +269,16 @@ $.widget("ui.multiselect", {
 		if (!this.options.doubleClickable) return;
 		elements.dblclick(function() {
 			elements.find('a.action').click();
+		});
+		
+		// Double-clicks on an action link shouldn't do anything, as the
+		// single-click listener does all the work in this case.
+		// If we don't do this, then it is possible to create duplicates of an
+		// item by clicking on the action link, then clicking again as the next
+		// item slides into place beneath our cursor, triggering a double-click
+		// and a single click on our event listeners.
+		elements.find('a.action').dblclick(function (event) {
+			event.stopPropagation();
 		});
 	},
 	_registerHoverEvents: function(elements) {
