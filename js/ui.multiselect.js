@@ -133,6 +133,7 @@ $.widget("ui.multiselect", {
 		// batch actions
 		this.container.find(".remove-all").click(function() {
 			that._populateLists(that.element.find('option').removeAttr('selected'));
+			that.element.trigger('change');
 			return false;
 		});
 		
@@ -146,6 +147,7 @@ $.widget("ui.multiselect", {
 				options.attr('selected', 'selected');
 			}
 			that._populateLists(that.element.find('option'));
+			that.element.trigger('change');
 			return false;
 		});
 	},

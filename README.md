@@ -6,6 +6,9 @@ If you submit patches I'll try be a little more on top of maintaining them.
 
 ## History ##
 
+### 8/30/2011 ###
+* Updated so change event is fired on Remove All and Add All
+
 ### 8/9/2011 ###
 
 * Merged code from NateEag to fix duplicate items - issues 90 & 91
