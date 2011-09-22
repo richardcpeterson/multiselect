@@ -30,6 +30,7 @@
 $.widget("ui.multiselect", {
   options: {
 		sortable: true,
+		dragToAdd: true,
 		searchable: true,
 		doubleClickable: true,
 		animated: 'fast',
@@ -313,7 +314,7 @@ $.widget("ui.multiselect", {
 		});
 		
 		// make draggable
-		if (this.options.sortable) {
+		if (this.options.sortable && this.options.dragToAdd) {
   		elements.each(function() {
   			$(this).parent().draggable({
   	      connectToSortable: that.selectedList,
