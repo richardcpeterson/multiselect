@@ -14,7 +14,10 @@
 	<script type="text/javascript">
 		$(function(){
 			$.localise('ui-multiselect', {/*language: 'en',*/ path: 'js/locale/'});
-			$(".multiselect").multiselect();
+			$(".multiselect").multiselect({
+                selectedContainerOnRight: false,
+                dividerLocation: 0.4
+            });
 			$('#switcher').themeswitcher();
 		});
 	</script>
