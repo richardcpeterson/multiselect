@@ -176,6 +176,24 @@ $.widget("ui.multiselect", {
 
 		$.Widget.prototype.destroy.apply(this, arguments);
 	},
+	addOption: function(option) {
+		// Append the option
+		option = $(option);
+		var select = this.element;
+		select.append(option);
+
+		var item = this._getOptionNode(option).appendTo(option.attr('selected') ? this.selectedList : this.availableList).show();
+
+		if (option.selected) {
+			this.count += 1;
+		}
+		this._applyItemState(item, option.attr('selected'));
+		item.data('idx', this.count);
+
+		// update count
+		this._updateCount();
+		this._filter.apply(this.availableContainer.find('input.search'), [this.availableList]);
+	},
 	_populateLists: function(options) {
 		this.selectedList.children('.ui-element').remove();
 		this.availableList.children('.ui-element').remove();
