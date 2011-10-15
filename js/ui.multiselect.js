@@ -284,16 +284,6 @@ $.widget("ui.multiselect", {
 		elements.dblclick(function() {
 			elements.find('a.action').click();
 		});
-
-		// Double-clicks on an action link shouldn't do anything, as the
-		// single-click listener does all the work in this case.
-		// If we don't do this, then it is possible to create duplicates of an
-		// item by clicking on the action link, then clicking again as the next
-		// item slides into place beneath our cursor, triggering a double-click
-		// and a single click on our event listeners.
-		elements.find('a.action').dblclick(function (event) {
-			event.stopPropagation();
-		});
 	},
 	_registerHoverEvents: function(elements) {
 		elements.removeClass('ui-state-hover');
@@ -310,6 +300,11 @@ $.widget("ui.multiselect", {
 			var item = that._setSelected($(this).parent(), true);
 			that.count += 1;
 			that._updateCount();
+
+			// Prevent extra clicks from triggering bogus add events, if a user
+			// tries clicking during the removal process.
+			$(this).unbind('click');
+
 			return false;
 		});
 
@@ -336,6 +331,11 @@ $.widget("ui.multiselect", {
 			that._setSelected($(this).parent(), false);
 			that.count -= 1;
 			that._updateCount();
+
+			// Prevent extra clicks from triggering bogus remove events, if a
+			// user tries clicking during the removal process.
+			$(this).unbind('click');
+
 			return false;
 		});
  	},
