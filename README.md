@@ -14,6 +14,7 @@ If you submit patches I'll try be a little more on top of maintaining them.
 * show (slideDown) : show effect.
 * hide (slideUp) : hide effect.
 * dividerLocation (0.6) : the ratio of the size of the left column versus the right column.
+* selectedContainerOnRight : controls which side the selected container is on.
 * width (null) : width of widget.
 * height (null) : height of widget.
 * nodeComparator : the function for comparing nodes.
@@ -40,6 +41,15 @@ $(&quot;#colors&quot;).multiselect({
 </pre></code>
 
 ## History ##
+
+### 10/18/2011 ###
+Merged the following contributions from NateEag:
+
+* Removed trailing whitespace. 
+* Prevent multi-clicks from duplicating items.
+* Add option to set which side the selected items are shown on.
+* Add public method for dynamically adding options.
+* Fix a one-pixel error in size calculations.
 
 ### 9/22/2011 ###
 * Added "DragToAdd" option that can turn off support for dragging to add. Since you currently can't drag to remove.
