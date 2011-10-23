@@ -14,7 +14,7 @@ If you submit patches I'll try be a little more on top of maintaining them.
 * show (slideDown) : show effect.
 * hide (slideUp) : hide effect.
 * dividerLocation (0.6) : the ratio of the size of the left column versus the right column.
-* selectedContainerOnRight : controls which side the selected container is on.
+* selectedContainerOnLeft : controls which side the selected container is on.
 * width (null) : width of widget.
 * height (null) : height of widget.
 * nodeComparator : the function for comparing nodes.
@@ -41,6 +41,12 @@ $(&quot;#colors&quot;).multiselect({
 </pre></code>
 
 ## History ##
+
+### 10/23/2011 ###
+Merged the following contributions from NateEag:
+
+* Rename selectedColumnOnRight to selectedColumnOnLeft
+* Unfixed math fix
 
 ### 10/18/2011 ###
 Merged the following contributions from NateEag:
