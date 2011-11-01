@@ -42,6 +42,11 @@ $(&quot;#colors&quot;).multiselect({
 
 ## History ##
 
+### 11/01/2011 ###
+Merged the following contributions from NateEag:
+
+* Set overflow to hidden for select items to fix issue where if you add a long option to a select that has little space, it'll overflow into the next one.
+
 ### 10/23/2011 ###
 Merged the following contributions from NateEag:
 
