@@ -108,7 +108,7 @@ $.widget("ui.multiselect", {
 			this.selectedList.sortable({
 				placeholder: 'ui-state-highlight',
 				axis: 'y',
-				update: function(event, ui) {
+				refresh: function(event, ui) {
 					// apply the new sort order to the original selectbox
 					that.selectedList.find('li').each(function() {
 						if ($(this).data('optionLink'))
