@@ -42,6 +42,11 @@ $(&quot;#colors&quot;).multiselect({
 
 ## History ##
 
+### 11/20/2011 ###
+Merged the following contributions from NateEag:
+
+* Added 'refresh' method to change the selections in a multiselect programmatically
+
 ### 11/01/2011 ###
 Merged the following contributions from NateEag:
 
