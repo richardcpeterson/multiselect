@@ -37,12 +37,17 @@
             show: 'slideDown',
             hide: 'slideUp',
             dividerLocation: 0.6,
-            selectedContainerOnLeft: true,
+            selectedContainerOnLeft: false,
             width: null,
             height: null,
+            constrainHeightToOptionBoundary: false,
+            labels: {
+                available:'Available',
+                selected:'Selected'
+            },
             nodeComparator: function(node1,node2) {
                 var text1 = node1.text(),
-                    text2 = node2.text();
+                text2 = node2.text();
                 return text1 == text2 ? 0 : (text1 < text2 ? -1 : 1);
             }
         },
@@ -51,22 +56,27 @@
             this.id = this.element.attr("id");
             this.container = $('<div class="ui-multiselect ui-helper-clearfix ui-widget"></div>').insertAfter(this.element);
             this.count = 0; // number of currently selected options
-            this.selectedContainer = $('<div class="selected"></div>');
             if (this.options.selectedContainerOnLeft) {
+                this.selectedContainer = $('<div class="selected left"></div>');
                 this.selectedContainer.appendTo(this.container);
                 this.availableContainer = $('<div class="available"></div>').appendTo(this.container);
                 this.availableContainer.addClass('right-column');
             }
             else
             {
-                this.availableContainer = $('<div class="available"></div>').appendTo(this.container);
+                this.selectedContainer = $('<div class="selected"></div>');
+                this.availableContainer = $('<div class="available left"></div>').appendTo(this.container);
                 this.selectedContainer.appendTo(this.container);
                 this.selectedContainer.addClass('right-column');
             }
-            this.selectedActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><span class="count">0 '+$.ui.multiselect.locale.itemsCount+'</span><a href="#" class="remove-all">'+$.ui.multiselect.locale.removeAll+'</a></div>').appendTo(this.selectedContainer);
-            this.availableActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><input type="text" class="search empty ui-widget-content ui-corner-all"/><a href="#" class="add-all">'+$.ui.multiselect.locale.addAll+'</a></div>').appendTo(this.availableContainer);
-            this.selectedList = $('<ul class="selected connected-list"><li class="ui-helper-hidden-accessible"></li></ul>').bind('selectstart', function(){return false;}).appendTo(this.selectedContainer);
-            this.availableList = $('<ul class="available connected-list"><li class="ui-helper-hidden-accessible"></li></ul>').bind('selectstart', function(){return false;}).appendTo(this.availableContainer);
+            this.selectedActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><span class="selected-label">'+this.options.labels.selected+'</span></div>').appendTo(this.selectedContainer);
+            this.availableActions = $('<div class="actions ui-widget-header ui-helper-clearfix"><input type="text" class="search empty ui-widget-content ui-corner-all"/><span class="available-label">'+this.options.labels.available+'</span></div>').appendTo(this.availableContainer);
+            this.selectedList = $('<ul class="selected connected-list"><li class="ui-helper-hidden-accessible"></li></ul>').bind('selectstart', function(){
+                return false;
+            }).appendTo(this.selectedContainer);
+            this.availableList = $('<ul class="available connected-list"><li class="ui-helper-hidden-accessible"></li></ul>').bind('selectstart', function(){
+                return false;
+            }).appendTo(this.availableContainer);
 
             var that = this;
 
@@ -87,10 +97,20 @@
             }
             else
             {
-                this.selectedContainer.width(Math.floor(width*this.options.dividerLocation)-2);
-                this.availableContainer.width(Math.floor(width*(1-this.options.dividerLocation))-1);
+                this.selectedContainer.width(Math.floor(width*this.options.dividerLocation)-1);
+                this.availableContainer.width(Math.floor(width*(1-this.options.dividerLocation))-2);
             }
 
+            // set up livesearch
+            if (this.options.searchable) {
+                this._registerSearchEvents(this.availableContainer.find('input.search'));
+            } else {
+                this.availableContainer.find('input.search').hide();
+            }
+            
+            // init lists
+            this._populateLists(this.element.find('option'));
+            
             // fix list height to match <option> depending on their individual header's heights
             this.selectedList.height(Math.max(height-this.selectedActions.height(),1));
             this.availableList.height(Math.max(height-this.availableActions.height(),1));
@@ -100,8 +120,25 @@
                 this.options.hide = 'hide';
             }
 
-            // init lists
-            this._populateLists(this.element.find('option'));
+            // Round off any extra height, so that the entire widget
+            // doesn't cut off parts of options
+            if(this.options.constrainHeightToOptionBoundary){
+                var firstOption = this.container.find("li.option").first();
+                var optionHeight = firstOption.height();
+                optionHeight += Math.max(
+                    parseInt(firstOption.css("margin-bottom")),
+                    parseInt(firstOption.css("margin-top"))
+                );
+                var selectedListHeight = this.selectedList.height();
+                var availableListHeight = this.availableList.height();
+                
+                var extraSelectedHeight = selectedListHeight % optionHeight;
+                var extraAvailableHeight = availableListHeight % optionHeight;
+                
+                
+                this.selectedList.height(selectedListHeight - extraSelectedHeight);
+                this.availableList.height(availableListHeight - extraAvailableHeight);
+            }
 
             // make selection sortable
             if (this.options.sortable) {
@@ -136,17 +173,14 @@
                         });
 
                         // workaround according to http://dev.jqueryui.com/ticket/4088
-                        setTimeout(function() { ui.item.remove(); }, 1);
+                        setTimeout(function() {
+                            ui.item.remove();
+                        }, 1);
                     },
-                    stop: function (event, ui) { that.element.change(); }
+                    stop: function (event, ui) {
+                        that.element.change();
+                    }
                 });
-            }
-
-            // set up livesearch
-            if (this.options.searchable) {
-                this._registerSearchEvents(this.availableContainer.find('input.search'));
-            } else {
-                $('.search').hide();
             }
 
             // batch actions
@@ -213,7 +247,7 @@
 
             var that = this;
             var items = $(options.map(function(i) {
-              var item = that._getOptionNode(this).appendTo(this.selected ? that.selectedList : that.availableList).show();
+                var item = that._getOptionNode(this).appendTo(this.selected ? that.selectedList : that.availableList).show();
 
                 if (this.selected) that.count += 1;
                 that._applyItemState(item, this.selected);
@@ -226,11 +260,11 @@
             that._filter.apply(this.availableContainer.find('input.search'), [that.availableList]);
         },
         _updateCount: function() {
-            this.selectedContainer.find('span.count').text(this.count+" "+$.ui.multiselect.locale.itemsCount);
+            this.selectedContainer.find('span.selected-label').text(this.options.labels.selected + " (" + this.count+ ")");
         },
         _getOptionNode: function(option) {
             option = $(option);
-            var node = $('<li class="ui-state-default ui-element" title="'+option.text()+'"><span class="ui-icon"/>'+option.text()+'<a href="#" class="action"><span class="ui-corner-all ui-icon"/></a></li>').hide();
+            var node = $('<li class="ui-state-default ui-element option" title="'+option.text()+'"><span class="ui-icon"/>'+option.text()+'<a href="#" class="action"><span class="ui-corner-all ui-icon"/></a></li>').hide();
             node.data('optionLink', option);
             return node;
         },
@@ -250,7 +284,9 @@
 
             if (selected) {
                 var selectedItem = this._cloneWithData(item);
-                item[this.options.hide](this.options.animated, function() { $(this).remove(); });
+                item[this.options.hide](this.options.animated, function() {
+                    $(this).remove();
+                });
                 selectedItem.appendTo(this.selectedList).hide()[this.options.show](this.options.animated);
 
                 this._applyItemState(selectedItem, true);
@@ -277,7 +313,9 @@
 
                 var availableItem = this._cloneWithData(item);
                 succ ? availableItem.insertBefore($(succ)) : availableItem.appendTo(this.availableList);
-                item[this.options.hide](this.options.animated, function() { $(this).remove(); });
+                item[this.options.hide](this.options.animated, function() {
+                    $(this).remove();
+                });
                 availableItem.hide()[this.options.show](this.options.animated);
 
                 this._applyItemState(availableItem, false);
@@ -306,10 +344,10 @@
         _filter: function(list) {
             var input = $(this);
             var rows = list.children('li'),
-                cache = rows.map(function(){
+            cache = rows.map(function(){
 
-                    return $(this).text().toLowerCase();
-                });
+                return $(this).text().toLowerCase();
+            });
 
             var term = $.trim(input.val().toLowerCase()), scores = [];
 
@@ -319,7 +357,9 @@
                 rows.hide();
 
                 cache.each(function(i) {
-                    if (this.indexOf(term)>-1) { scores.push(i); }
+                    if (this.indexOf(term)>-1) {
+                        scores.push(i);
+                    }
                 });
 
                 $.each(scores, function() {
@@ -358,19 +398,19 @@
 
             // make draggable
             if (this.options.sortable && this.options.dragToAdd) {
-            elements.each(function() {
-                $(this).parent().draggable({
-              connectToSortable: that.selectedList,
-                    helper: function() {
-                        var selectedItem = that._cloneWithData($(this)).width($(this).width() - 50);
-                        selectedItem.width($(this).width());
-                        return selectedItem;
-                    },
-                    appendTo: that.container,
-                    containment: that.container,
-                    revert: 'invalid'
-            });
-            });
+                elements.each(function() {
+                    $(this).parent().draggable({
+                        connectToSortable: that.selectedList,
+                        helper: function() {
+                            var selectedItem = that._cloneWithData($(this)).width($(this).width() - 50);
+                            selectedItem.width($(this).width());
+                            return selectedItem;
+                        },
+                        appendTo: that.container,
+                        containment: that.container,
+                        revert: 'invalid'
+                    });
+                });
             }
         },
         _registerRemoveEvents: function(elements) {
@@ -403,14 +443,6 @@
             .keyup(function() {
                 that._filter.apply(this, [that.availableList]);
             });
-        }
-    });
-
-    $.extend($.ui.multiselect, {
-        locale: {
-            addAll:'Add all',
-            removeAll:'Remove all',
-            itemsCount:'items selected'
         }
     });
 
